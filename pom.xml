@@ -10,6 +10,7 @@
   </properties>
   
   <dependencies>
+    <!-- Per Christina's Lessons-->
   	<!-- https://mvnrepository.com/artifact/io.javalin/javalin -->
 	<dependency>
       <groupId>io.javalin</groupId>
@@ -17,6 +18,8 @@
       <version>5.0.1</version>
 	</dependency>
 	
+	   
+	<!-- Per Christina's Lessons-->
 	<!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
 	<dependency>
 	  <groupId>ch.qos.logback</groupId>
@@ -25,6 +28,7 @@
     <scope>test</scope>
 	</dependency>
 	
+	<!-- Per Christina's Lessons-->
 	<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
 	<dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -32,13 +36,14 @@
       <version>2.13.4</version>
 	</dependency>
 	
+	<!-- Per Christina's Lessons-->
 	<dependency>
    	  <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>1.7.36</version>
 	</dependency>
 	
-	
+	<!-- From the tutorial (Connecting to a PostgreSQL Database with JDBC)-->
 	<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
 	<dependency>
    	  <groupId>org.postgresql</groupId>

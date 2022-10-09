@@ -1,42 +1,21 @@
 package com.revature;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.jetty.http.HttpStatus;
 
-import com.revature.model.Person;
+import com.revature.model.User;
 
 import io.javalin.Javalin;
 
 
 public class Driver {
 	
-	public static void main(String[] args) {
+	Driver(){
 		
 		
-		/*
-		 * Connect the database using JDBC and PostgreSQL
-		 */
 		
-		Connection connection = null;
-		
-		try {
-			Class.forName("org.postgresql.Driver");
-			connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "F501vb12!");
-			
-			
-			if (connection!=null) {
-				System.out.println("Connection OK");
-			} else {
-				System.out.println("Connection Failed");
-			}
-		} catch (Exception e) {
-			// TODO: handle exception
-			System.out.println(e);
-		}
 		
 		/*
 		 * Javalin is consider lightweight framework for quickly building RESTful APIs
@@ -54,22 +33,22 @@ public class Driver {
 		
 		app.get("/person/{id}", ctx -> {
 			
-			Set<Person> people = new HashSet<>();
-			Person person1 = new Person(1, "Sean", 23);
-			Person person2 = new Person(2, "Zeke", 22);
-			Person person3 = new Person(3, "Jen", 25);
+			Set<User> users = new HashSet<>();
+			User user1 = new User(1, "Sean", "Mendelson", "Bossman007","Password", true);
+			User user2 = new User(2, "Zeke","","", "", false);
+			User user3 = new User(3, "Jen", "","","", false);
 		
-			people.add(person1);
-			people.add(person2);
-			people.add(person3);
+			users.add(user1);
+			users.add(user2);
+			users.add(user3);
 			
-			Person selectedPerson = null;
+			User selectedUser = null;
 			
-			for (Person p : people) {
-				if (p.getId() == Integer.parseInt(ctx.pathParam("id"))) selectedPerson = p;
+			for (User u : users) {
+				if (u.getId() == Integer.parseInt(ctx.pathParam("id"))) selectedUser = u;
 			}
 			
-			ctx.json(selectedPerson);
+			ctx.json(selectedUser);
 		
 		});
 		
@@ -83,14 +62,14 @@ public class Driver {
 			 */
 			
 			
-			Person receivedPerson = ctx.bodyAsClass(Person.class);
-			System.out.println(receivedPerson);
+			User receivedUser = ctx.bodyAsClass(User.class);
+			System.out.println(receivedUser);
 			ctx.status(HttpStatus.CREATED_201);
 		});
 		
 		app.after(ctx -> {
 			System.out.println("This happens after the request has been completed");
 		});
+	
 	}
-
 }
