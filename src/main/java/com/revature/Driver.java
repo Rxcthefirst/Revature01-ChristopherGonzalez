@@ -31,7 +31,7 @@ public class Driver {
 		});
 		
 		
-		app.get("/person/{id}", ctx -> {
+		app.get("/user/{id}", ctx -> {
 			
 			Set<User> users = new HashSet<>();
 			User user1 = new User(1, "Sean", "Mendelson", "Bossman007","Password", true);
@@ -54,7 +54,7 @@ public class Driver {
 		
 		app.post("/new-item", ctx -> {
 			/*	
-			 * As a matter of abstraction, sometimes we wish to perform a task before an HTTP Request makes it to its desination.
+			 * As a matter of abstraction, sometimes we wish to perform a task before an HTTP Request makes it to its destination.
 			 * In order to avoid mixing this 
 			 * 
 			 * If a client is making a POST request, this means that there must be something
@@ -63,6 +63,7 @@ public class Driver {
 			
 			
 			User receivedUser = ctx.bodyAsClass(User.class);
+			
 			System.out.println(receivedUser);
 			ctx.status(HttpStatus.CREATED_201);
 		});

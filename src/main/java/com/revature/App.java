@@ -6,9 +6,9 @@ public class App {
 		
 		
 		// Establish connection to PostgreSQL server using JDBC
-		ConnectDB connection = new ConnectDB();
+		JDBCExecutor connection = new JDBCExecutor();
 		
-		// Instantiate Javalin Driver
+		// Instantiate Javalin Driver`
 		Driver driver = new Driver();
 		
 		

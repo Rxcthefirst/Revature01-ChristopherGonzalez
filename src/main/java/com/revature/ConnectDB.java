@@ -2,6 +2,7 @@ package com.revature;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class ConnectDB {
 
@@ -18,17 +19,17 @@ public class ConnectDB {
 	try
 	{
 		Class.forName("org.postgresql.Driver");
-		connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "F501vb12!");
+		connection = DriverManager.getConnection("jdbc:postgresql://localhost:5433/postgres", "postgres", "root");
 
 		if (connection != null) {
 			System.out.println("Connection OK");
 		} else {
 			System.out.println("Connection Failed");
 		}
-	}catch(
-	Exception e)
+	}catch(Exception e)
 	{
 		// TODO: handle exception
+		//e.printStackTrace();
 		System.out.println(e);
 	}
 
