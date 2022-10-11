@@ -11,20 +11,28 @@ import java.sql.Statement;
 
 public class JDBCExecutor {
 	
+	private Connection connection;
+
 	JDBCExecutor(){
-		
+				
 		DatabaseConnectionManager dcm = new DatabaseConnectionManager("localhost:5433", "revature", "postgres", "root");
 		
 		try {
-			Connection connection = dcm.getConnection();
-			Statement statement = connection.createStatement();
-			ResultSet resultSet = statement.executeQuery("SELECT COUNT (*) FROM customer WHERE state LIKE 'MN'");
-			while(resultSet.next()){
-				System.out.println(resultSet.getInt(1));
-			}
+			this.connection = dcm.getConnection();
+			/*
+			 * Statement statement = connection.createStatement(); ResultSet resultSet =
+			 * statement.executeQuery("SELECT username, u_password FROM usertest2");
+			 * //System.out.println(resultSet); while(resultSet.next()){
+			 * System.out.println(resultSet.getString(1) + " " + resultSet.getString(2) ); }
+			 */
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	public Connection getConnection() throws SQLException{
+		return this.connection;
+	}
+
 }
 
