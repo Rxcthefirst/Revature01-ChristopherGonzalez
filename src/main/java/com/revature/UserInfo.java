@@ -1,4 +1,4 @@
-package com.revature.model;
+package com.revature;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -7,6 +7,8 @@ import java.sql.Statement;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import com.revature.model.User;
 
 public class UserInfo {
 

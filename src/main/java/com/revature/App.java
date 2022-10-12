@@ -6,7 +6,6 @@ package com.revature;
 
 import java.sql.SQLException;
 
-import com.revature.model.UserInfo;
 import com.revature.pages.LoginPage;
 
 public class App {
