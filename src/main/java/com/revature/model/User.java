@@ -1,8 +1,10 @@
 package com.revature.model;
 
-public class User {
+import com.revature.util.DataTransferObject;
 
-	private int id;
+public class User implements DataTransferObject {
+
+	private long id;
 	private String firstName;
 	private String lastName;
 	private String username;
@@ -15,7 +17,7 @@ public class User {
 
 	}
 
-	public User(int id, String firstName, String lastName, String username, String password, boolean manager) {
+	public User(long id, String firstName, String lastName, String username, String password, boolean manager) {
 		super();
 		this.id = id;
 		this.firstName = firstName;
@@ -25,11 +27,11 @@ public class User {
 		this.manager = manager;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

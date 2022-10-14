@@ -1,19 +1,22 @@
 package com.revature.pages;
 
 import java.sql.Connection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.sql.SQLException;
 
 import org.eclipse.jetty.http.HttpStatus;
 
+import com.revature.dao.EmployeeDAO;
+import com.revature.model.LoginInfo;
 import com.revature.model.User;
+import com.revature.util.ConnectionFactory;
 
 import io.javalin.Javalin;
 
 public class LoginPage {
+	
 
-	public LoginPage(Connection connection, Javalin app, Set<User> users) {
+	public LoginPage(Javalin app) {
+		
 
 		/*
 		 * Before the first intended resource is reached
@@ -23,6 +26,7 @@ public class LoginPage {
 		});
 
 		/*
+		 * 
 		 * First get request
 		 * 
 		 * Description: We want the get request to function as a login attempt the valid
@@ -35,22 +39,22 @@ public class LoginPage {
 			//TODO: Fix the exception being caused by this null object.
 			User selectedUser = null;
 			System.out.println("The parameter inserted into the HTTP get request is : " + ctx.pathParam("username"));
-
-			for (User u : users) {
-				
-
-				if (u.getUsername().equals(ctx.pathParam("username"))) {
-					selectedUser = u;
-					System.out.println("We have found a match: Selected user is " + selectedUser);
-				}
-				}
 			
-			if (selectedUser != null) {
-				
-				ctx.json(selectedUser);
-			} else {
-				System.out.println("Parameter entered did not match any users");
-			}
+			//UserInfo()
+
+			/*
+			 * for (User u : users) {
+			 * 
+			 * 
+			 * if (u.getUsername().equals(ctx.pathParam("username"))) { selectedUser = u;
+			 * System.out.println("We have found a match: Selected user is " +
+			 * selectedUser); } }
+			 * 
+			 * if (selectedUser != null) {
+			 * 
+			 * ctx.json(selectedUser); } else {
+			 * System.out.println("Parameter entered did not match any users"); }
+			 */
 		
 		});
 
@@ -63,7 +67,7 @@ public class LoginPage {
 		 * 
 		 */
 
-		app.post("/new-item", ctx -> {
+		app.post("/login", ctx -> {
 
 			/*
 			 * As a matter of abstraction, sometimes we wish to perform a task before an
@@ -79,6 +83,23 @@ public class LoginPage {
 			
 
 			System.out.println(tempUser);
+			ctx.status(HttpStatus.CREATED_201);
+		});
+		
+		app.post("/register", ctx -> {
+			
+			User tempUser = ctx.bodyAsClass(User.class);
+			
+			try(Connection conn = ConnectionFactory.getConnection();
+					){
+				EmployeeDAO employeeDAO = new EmployeeDAO(conn);
+				employeeDAO.create(tempUser);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+
+
+
 			ctx.status(HttpStatus.CREATED_201);
 		});
 

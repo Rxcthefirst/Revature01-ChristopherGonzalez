@@ -1,6 +1,8 @@
 package com.revature.model;
 
-public class UnresolvedTicket {
+import com.revature.util.DataTransferObject;
+
+public class Ticket implements DataTransferObject {
 	
 	private int ticketID;
 	private int userID;
@@ -9,12 +11,12 @@ public class UnresolvedTicket {
 	private String description;
 	private String status;
 	
-	public UnresolvedTicket() {
+	public Ticket() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public UnresolvedTicket(int ticketID, int userID, String userFirstName, String userLastName, String description,
+	public Ticket(int ticketID, int userID, String userFirstName, String userLastName, String description,
 			String status) {
 		super();
 		this.ticketID = ticketID;
@@ -75,8 +77,14 @@ public class UnresolvedTicket {
 
 	@Override
 	public String toString() {
-		return "UnresolvedTicket [ticketID=" + ticketID + ", userID=" + userID + ", userFirstName=" + userFirstName
+		return "Ticket [ticketID=" + ticketID + ", userID=" + userID + ", userFirstName=" + userFirstName
 				+ ", userLastName=" + userLastName + ", description=" + description + ", status=" + status + "]";
+	}
+
+	@Override
+	public long getId() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 	
