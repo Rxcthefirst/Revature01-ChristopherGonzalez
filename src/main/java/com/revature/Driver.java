@@ -1,12 +1,5 @@
 package com.revature;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.eclipse.jetty.http.HttpStatus;
-
-import com.revature.model.User;
-
 import io.javalin.Javalin;
 
 public class Driver {

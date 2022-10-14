@@ -40,22 +40,7 @@ public class LoginPage {
 			User selectedUser = null;
 			System.out.println("The parameter inserted into the HTTP get request is : " + ctx.pathParam("username"));
 			
-			//UserInfo()
 
-			/*
-			 * for (User u : users) {
-			 * 
-			 * 
-			 * if (u.getUsername().equals(ctx.pathParam("username"))) { selectedUser = u;
-			 * System.out.println("We have found a match: Selected user is " +
-			 * selectedUser); } }
-			 * 
-			 * if (selectedUser != null) {
-			 * 
-			 * ctx.json(selectedUser); } else {
-			 * System.out.println("Parameter entered did not match any users"); }
-			 */
-		
 		});
 
 		/*
