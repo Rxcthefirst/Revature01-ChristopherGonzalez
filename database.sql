@@ -1,2 +1,3 @@
-CREATE DATABASE revature-api;
-GRANT ALL PRIVILEGES ON DATABASE revature-api TO postgres;
+
+--CREATE DATABASE postgres;
+GRANT ALL PRIVILEGES ON DATABASE postgres TO postgres;

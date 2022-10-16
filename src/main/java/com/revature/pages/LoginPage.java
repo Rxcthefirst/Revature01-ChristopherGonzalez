@@ -2,88 +2,74 @@ package com.revature.pages;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Set;
 
 import org.eclipse.jetty.http.HttpStatus;
 
-import com.revature.dao.EmployeeDAO;
-import com.revature.model.LoginInfo;
+import com.revature.dao.UserDAO;
 import com.revature.model.User;
 import com.revature.util.ConnectionFactory;
 
 import io.javalin.Javalin;
 
 public class LoginPage {
-	
 
 	public LoginPage(Javalin app) {
-		
+
+		System.out.println("Welcome to Revature's Reimbusement Ticketing Application:");
 
 		/*
 		 * Before the first intended resource is reached
 		 */
 		app.before(ctx -> {
-			System.out.println("This happens before the http requests make it to their first intended resource.");
+			System.out.println("START HTTP REQUEST");
 		});
-
-		/*
-		 * 
-		 * First get request
-		 * 
-		 * Description: We want the get request to function as a login attempt the valid
-		 * get initializes the welcome user page and allows the control flow to move
-		 * forward
-		 */
-		app.get("/user/{username}", ctx -> {
-
-			
-			//TODO: Fix the exception being caused by this null object.
-			User selectedUser = null;
-			System.out.println("The parameter inserted into the HTTP get request is : " + ctx.pathParam("username"));
-			
-
-		});
-
-		/*
-		 * Post request
-		 * 
-		 * This is intended to function as a "register" feature. It allows the client to
-		 * create a user in the database. Need to find a way to add functionality to
-		 * inform the user when a username is taken.
-		 * 
-		 */
 
 		app.post("/login", ctx -> {
 
-			/*
-			 * As a matter of abstraction, sometimes we wish to perform a task before an
-			 * HTTP Request makes it to its destination. In order to avoid mixing this
-			 * 
-			 * If a client is making a POST request, this means that there must be something
-			 * in the HTTP request body that we can extract.
-			 * 
-			 * - Christina
-			 */
-
 			User tempUser = ctx.bodyAsClass(User.class);
-			
 
-			System.out.println(tempUser);
-			ctx.status(HttpStatus.CREATED_201);
-		});
-		
-		app.post("/register", ctx -> {
-			
-			User tempUser = ctx.bodyAsClass(User.class);
-			
-			try(Connection conn = ConnectionFactory.getConnection();
-					){
-				EmployeeDAO employeeDAO = new EmployeeDAO(conn);
-				employeeDAO.create(tempUser);
-					} catch (SQLException e) {
-						e.printStackTrace();
+			try (Connection conn = ConnectionFactory.getConnection();) {
+				UserDAO employeeDAO = new UserDAO(conn);
+				Set<User> userList = employeeDAO.findAll();
+				boolean match = false;
+				for (User user : userList) {
+					if (user.getUsername().equals(tempUser.getUsername())) {
+						if (user.getPassword().equals(tempUser.getPassword())) {
+							System.out.println("Username and password are a match. Login successful!");
+							match = true;
+							if (employeeDAO.findById(user.getId()).isManager()) {
+								System.out.println(user.getPassword().equals(tempUser.getPassword()));
+								AdminPage adminPage = new AdminPage(user, app);
+							} else {
+								EmployeePage loginPage = new EmployeePage(user, app);
+								System.out.println(user.getPassword().equals(tempUser.getPassword()));
+							}
+						}
 					}
+				}
+				if (!match) {
+					System.out.println("Login Unsuccessful");
+				}
 
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 
+			ctx.status(HttpStatus.ACCEPTED_202);
+		});
+
+		app.post("/register", ctx -> {
+
+			User tempUser = ctx.bodyAsClass(User.class);
+
+			try (Connection conn = ConnectionFactory.getConnection();) {
+				UserDAO employeeDAO = new UserDAO(conn);
+				User user = employeeDAO.create(tempUser);
+				System.out.println("User " + user.getUsername() + " registered successfully");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 
 			ctx.status(HttpStatus.CREATED_201);
 		});
@@ -92,7 +78,7 @@ public class LoginPage {
 		 * After the last resource is reached
 		 */
 		app.after(ctx -> {
-			System.out.println("This happens after the request has been completed");
+			System.out.println("HTTP REQUEST COMPLETE");
 		});
 
 	}

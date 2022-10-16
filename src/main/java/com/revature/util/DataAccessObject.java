@@ -1,13 +1,17 @@
 package com.revature.util;
 
-import java.sql.*;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Set;
 
 public abstract class DataAccessObject <T extends DataTransferObject> {
 
     protected final Connection connection;
     protected final static String LAST_VAL = "SELECT last_value FROM ";
-    protected final static String EMPLOYEE_SEQUENCE = "user_test_seq";
+    protected final static String USER_SEQUENCE = "userseq";
+    protected final static String TICKET_SEQUENCE = "ticketseq";    
 
     public DataAccessObject(Connection connection){
         super();
@@ -15,7 +19,7 @@ public abstract class DataAccessObject <T extends DataTransferObject> {
     }
 
     public abstract T findById(long id);
-    public abstract List<T> findAll();
+    public abstract Set<T> findAll();
     public abstract T update(T dto);
     public abstract T create(T dto);
     public abstract void delete(long id);

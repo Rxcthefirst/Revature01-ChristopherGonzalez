@@ -4,25 +4,31 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.revature.model.User;
 import com.revature.util.DataAccessObject;
 
-public class EmployeeDAO extends DataAccessObject<User>{
+public class UserDAO extends DataAccessObject<User>{
 	
-	private static final String INSERT = "INSERT INTO userdbtest (employee_id, first_name,"
+	private static final String INSERT = "INSERT INTO userdb (user_id, first_name,"
 			+ "last_name, username, user_password, is_manager) VALUES (DEFAULT, ?, ?, ?, ?, DEFAULT)";
 	
-	private static final String GET_ONE = "SELECT employee_id, first_name, last_name, " + 
-			"username, user_password, is_manager FROM userdbtest WHERE employee_id=?";
+	private static final String GET_ONE = "SELECT user_id, first_name, last_name, " + 
+			"username, user_password, is_manager FROM userdb WHERE user_id = ?";
 	
-	private static final String UPDATE = "UPDATE userdbtest SET first_name = ?, last_name = ?, " +
-			"username = ?, user_password = ? WHERE employee_id = ?";
+	private static final String GET_USERINFO = "SELECT user_id, first_name, last_name, " + 
+			"username, user_password, is_manager FROM userdb WHERE username = ?";
 	
-	private static final String DELETE = "DELETE FROM userdbtest WHERE employee_id = ?";
+	private static final String UPDATE = "UPDATE userdb SET first_name = ?, last_name = ?, " +
+			"username = ?, user_password = ? WHERE user_id = ?";
+	
+	private static final String DELETE = "DELETE FROM userdb WHERE user_id = ?";
 
-	public EmployeeDAO(Connection connection) {
+	private static final String FINDALL = "SELECT * FROM userdb";
+
+	public UserDAO(Connection connection) {
 		super(connection);
 		// TODO Auto-generated constructor stub
 	}
@@ -35,7 +41,7 @@ public class EmployeeDAO extends DataAccessObject<User>{
 			statement.setLong(1, id);
 			ResultSet rs = statement.executeQuery();
 			while(rs.next()) {
-				user.setId(rs.getLong("employee_id"));
+				user.setId(rs.getLong("user_id"));
 				user.setFirstName(rs.getString("first_name"));
 				user.setLastName(rs.getString("last_name"));
 				user.setUsername(rs.getString("username"));
@@ -50,11 +56,47 @@ public class EmployeeDAO extends DataAccessObject<User>{
 		}
 		return user;
 	}
+	
+	public User findByUsername(String username) {
+		// TODO Auto-generated method stub
+		User user = new User();
+		try(PreparedStatement statement = this.connection.prepareStatement(GET_USERINFO);){
+			statement.setString(1, "username");
+			ResultSet rs = statement.executeQuery();
+			while(rs.next()) {
+				user.setId(rs.getLong("user_id"));
+				user.setFirstName(rs.getString("first_name"));
+				user.setLastName(rs.getString("last_name"));
+				user.setUsername(rs.getString("username"));
+				user.setPassword(rs.getString("user_password"));
+				user.setManager(rs.getBoolean("is_manager"));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		return user;
+	}
 
 	@Override
-	public List<User> findAll() {
+	public Set<User> findAll() {
 		// TODO Auto-generated method stub
-		return null;
+		Set<User> userList = new HashSet<User>();
+		
+		try(PreparedStatement statement = this.connection.prepareStatement(FINDALL);){
+            ResultSet resultSet = statement.executeQuery();
+            while(resultSet.next()) {
+            	userList.add(new User(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3),
+						resultSet.getString(4), resultSet.getString(5), resultSet.getBoolean(6)));
+            }
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		return userList;
+		
 	}
 
 	@Override
@@ -86,10 +128,11 @@ public class EmployeeDAO extends DataAccessObject<User>{
             statement.setString(3, dto.getUsername());
             statement.setString(4, dto.getPassword());
             statement.execute();
-            int id = this.getLastVal(EMPLOYEE_SEQUENCE);
+            int id = this.getLastVal(USER_SEQUENCE);
             return this.findById(id);
 		}catch(SQLException e) {
 			e.printStackTrace();
+			System.out.println("Registration Unsuccessful: This username has already been taken");
 			throw new RuntimeException(e);
 		}
 	}

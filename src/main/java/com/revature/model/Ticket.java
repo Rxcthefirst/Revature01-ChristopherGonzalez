@@ -4,10 +4,11 @@ import com.revature.util.DataTransferObject;
 
 public class Ticket implements DataTransferObject {
 	
-	private int ticketID;
-	private int userID;
+	private long ticketID;
+	private long userID;
 	private String userFirstName;
 	private String userLastName;
+	private Double amount;
 	private String description;
 	private String status;
 	
@@ -16,30 +17,31 @@ public class Ticket implements DataTransferObject {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Ticket(int ticketID, int userID, String userFirstName, String userLastName, String description,
+	public Ticket(long ticketID, long userID, String userFirstName, String userLastName, Double amount, String description,
 			String status) {
 		super();
 		this.ticketID = ticketID;
 		this.userID = userID;
 		this.userFirstName = userFirstName;
 		this.userLastName = userLastName;
+		this.amount = amount;
 		this.description = description;
 		this.status = status;
 	}
 
-	public int getTicketID() {
+	public long getTicketID() {
 		return ticketID;
 	}
 
-	public void setTicketID(int ticketID) {
+	public void setTicketID(long ticketID) {
 		this.ticketID = ticketID;
 	}
 
-	public int getUserID() {
+	public long getUserID() {
 		return userID;
 	}
 
-	public void setUserID(int userID) {
+	public void setUserID(long userID) {
 		this.userID = userID;
 	}
 
@@ -57,6 +59,14 @@ public class Ticket implements DataTransferObject {
 
 	public void setUserLastName(String userLastName) {
 		this.userLastName = userLastName;
+	}
+	
+	public Double getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Double amount) {
+		this.amount = amount;
 	}
 
 	public String getDescription() {
@@ -78,7 +88,7 @@ public class Ticket implements DataTransferObject {
 	@Override
 	public String toString() {
 		return "Ticket [ticketID=" + ticketID + ", userID=" + userID + ", userFirstName=" + userFirstName
-				+ ", userLastName=" + userLastName + ", description=" + description + ", status=" + status + "]";
+				+ ", userLastName=" + userLastName + ", amount=" + amount + ", description=" + description + ", status=" + status + "]";
 	}
 
 	@Override
