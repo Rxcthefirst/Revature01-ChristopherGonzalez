@@ -4,9 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.revature.model.Ticket;
+import com.revature.model.User;
 import com.revature.util.DataAccessObject;
 
 public class TicketDAO extends DataAccessObject<Ticket> {
@@ -21,6 +23,10 @@ public class TicketDAO extends DataAccessObject<Ticket> {
 			"ticket_status = ? WHERE ticket_id = ?";
 	
 	private static final String DELETE = "DELETE FROM ticketdb WHERE ticket_id = ?";
+	
+	private static final String FINDALL = "SELECT * FROM ticketdb WHERE status = 'Pending'";
+	
+	private static final String FINDALLBYID = "SELECT * FROM ticketdb WHERE user_id = ?";
 
 	public TicketDAO(Connection connection) {
 		super(connection);
@@ -52,7 +58,39 @@ public class TicketDAO extends DataAccessObject<Ticket> {
 	@Override
 	public Set<Ticket> findAll() {
 		// TODO Auto-generated method stub
-		return null;
+		Set<Ticket> ticketList  = new HashSet<Ticket>();
+		try(PreparedStatement statement = this.connection.prepareStatement(FINDALL);){
+            ResultSet resultSet = statement.executeQuery();
+            while(resultSet.next()) {
+            	ticketList.add(new Ticket(resultSet.getInt(1), resultSet.getInt(2), resultSet.getDouble(3),
+						resultSet.getString(4), resultSet.getString(5)));
+            }
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		
+		return ticketList;
+	}
+	
+	public Set<Ticket> findAllByUserId(long id) {
+		// TODO Auto-generated method stub
+		Set<Ticket> ticketList  = new HashSet<Ticket>();
+		try(PreparedStatement statement = this.connection.prepareStatement(FINDALLBYID);){
+			statement.setLong(1, id);
+            ResultSet resultSet = statement.executeQuery();
+            while(resultSet.next()) {
+            	ticketList.add(new Ticket(resultSet.getInt(1), resultSet.getInt(2), resultSet.getDouble(3),
+						resultSet.getString(4), resultSet.getString(5)));
+            }
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		
+		return ticketList;
 	}
 
 	@Override
@@ -83,7 +121,6 @@ public class TicketDAO extends DataAccessObject<Ticket> {
             statement.setString(3, dto.getDescription());
             statement.execute();
             int id = this.getLastVal(TICKET_SEQUENCE);
-            System.out.println(id);
             return this.findById(id);
 		}catch(SQLException e) {
 			e.printStackTrace();

@@ -8,9 +8,7 @@ import org.eclipse.jetty.http.HttpStatus;
 
 import com.revature.dao.TicketDAO;
 import com.revature.dao.UserDAO;
-import com.revature.model.RegistrationInfo;
 import com.revature.model.Ticket;
-import com.revature.model.TicketSubmissionInfo;
 import com.revature.model.User;
 import com.revature.util.ConnectionFactory;
 
@@ -20,22 +18,21 @@ public class Driver {
 
 	public static void main(String[] args) throws SQLException {
 
+		// Keep track of current user
 		User currentUser = new User();
 
 		// Instantiate Javalin Driver
 		Javalin app = Javalin.create().start(8000);
-		// Create Login Page
-		System.out.println("Welcome to Revature's Reimbusement Ticketing Application:");
 
-		/*
-		 * Before the first intended resource is reached
-		 */
 		app.before(ctx -> {
 			System.out.println("START HTTP REQUEST");
 		});
 
+		//Login
+
 		app.post("/login", ctx -> {
 
+			//Read in JSON object
 			User tempUser = ctx.bodyAsClass(User.class);
 
 			try (Connection conn = ConnectionFactory.getConnection();) {
@@ -54,7 +51,6 @@ public class Driver {
 							currentUser.setUsername(user.getUsername());
 							currentUser.setPassword(user.getPassword());
 							currentUser.setManager(user.isManager());
-							System.out.println(currentUser);
 							if (employeeDAO.findById(user.getId()).isManager()) {
 								System.out.println("Manager Access Granted");
 								ctx.result("Manager Access Granted");
@@ -80,12 +76,12 @@ public class Driver {
 
 		});
 
+		//Registration
+
 		app.post("/register", ctx -> {
 
-			RegistrationInfo registrationInfo = ctx.bodyAsClass(RegistrationInfo.class);
-
-			User tempUser = new User(0, registrationInfo.getFirstName(), registrationInfo.getLastName(),
-					registrationInfo.getUsername(), registrationInfo.getPassword(), false);
+			User tempUser = ctx.bodyAsClass(User.class);
+			System.out.println(tempUser);
 
 			try (Connection conn = ConnectionFactory.getConnection();) {
 				UserDAO employeeDAO = new UserDAO(conn);
@@ -116,29 +112,34 @@ public class Driver {
 			ctx.status(HttpStatus.CREATED_201);
 		});
 
-		/*
-		 * After the last resource is reached
-		 */
+		//Ticket Viewer
 
 		app.get("/view-tickets", ctx -> {
-
-			Ticket tempTicket = ctx.bodyAsClass(Ticket.class);
+			
+			System.out.println(currentUser.getFirstName());
 
 			try (Connection conn = ConnectionFactory.getConnection();) {
 				TicketDAO ticketDAO = new TicketDAO(conn);
-				Ticket ticket = ticketDAO.create(tempTicket);
+				Set<Ticket> tickets = ticketDAO.findAllByUserId(currentUser.getId());
+				
+				ctx.result(tickets.toString());
+
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
+			
+			
 
 			ctx.status(HttpStatus.ACCEPTED_202);
 		});
 
+		//Ticket Submission
+
 		app.post("/submit", ctx -> {
 
-			TicketSubmissionInfo ticketInfo = ctx.bodyAsClass(TicketSubmissionInfo.class);
-			Ticket tempTicket = new Ticket(0, currentUser.getId(), ticketInfo.getAmount(), ticketInfo.getDescription(),
-					null);
+			Ticket tempTicket = ctx.bodyAsClass(Ticket.class);
+			tempTicket.setUserID(currentUser.getId());
+
 
 			try (Connection conn = ConnectionFactory.getConnection();) {
 				TicketDAO ticketDAO = new TicketDAO(conn);
@@ -152,6 +153,8 @@ public class Driver {
 
 			ctx.status(HttpStatus.CREATED_201);
 		});
+
+		//Logout
 
 		app.get("/logout", ctx -> {
 
