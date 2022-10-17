@@ -128,10 +128,37 @@ public class Driver {
 				e.printStackTrace();
 			}
 			
-			
 
 			ctx.status(HttpStatus.ACCEPTED_202);
 		});
+		
+		//Ticket Viewer
+
+		app.get("/view-pending-tickets", ctx -> {
+			
+			if (currentUser.isManager()) {
+					
+			System.out.println(currentUser.getFirstName());
+
+			try (Connection conn = ConnectionFactory.getConnection();) {
+				TicketDAO ticketDAO = new TicketDAO(conn);
+				Set<Ticket> tickets = ticketDAO.findAllPending();
+				for (Ticket ticket: tickets) {
+					System.out.println(ticket);
+				}
+				
+				ctx.result(tickets.toString());
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+			ctx.status(HttpStatus.ACCEPTED_202);
+			} else {
+				ctx.status(HttpStatus.FORBIDDEN_403);
+				ctx.result("You do not have authorization to perform this operation");
+			}
+			});
+
 
 		//Ticket Submission
 
@@ -158,7 +185,27 @@ public class Driver {
 
 		app.get("/logout", ctx -> {
 
-			ctx.status(HttpStatus.ACCEPTED_202);
+			if (currentUser.getUsername() == null) {
+				
+				ctx.result("You are not currently logged in.");
+				ctx.status(HttpStatus.BAD_REQUEST_400);
+				
+				} else {
+					try (Connection conn = ConnectionFactory.getConnection();) {
+						UserDAO userDAO = new UserDAO(conn);
+						currentUser.setId(0);
+						currentUser.setFirstName(null);
+						currentUser.setLastName(null);
+						currentUser.setUsername(null);
+						currentUser.setPassword(null);
+						currentUser.setManager(false);
+						
+						ctx.result("Logout successful: Current user is " + currentUser);
+						ctx.status(HttpStatus.ACCEPTED_202);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
 		});
 
 		app.after(ctx -> {

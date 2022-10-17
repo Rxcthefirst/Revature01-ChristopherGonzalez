@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.revature.model.Ticket;
-import com.revature.model.User;
 import com.revature.util.DataAccessObject;
 
 public class TicketDAO extends DataAccessObject<Ticket> {
@@ -24,7 +23,7 @@ public class TicketDAO extends DataAccessObject<Ticket> {
 	
 	private static final String DELETE = "DELETE FROM ticketdb WHERE ticket_id = ?";
 	
-	private static final String FINDALL = "SELECT * FROM ticketdb WHERE status = 'Pending'";
+	private static final String FINDALLPENDING = "SELECT * FROM ticketdb WHERE ticket_status = 'Pending' ORDER BY ticket_id";
 	
 	private static final String FINDALLBYID = "SELECT * FROM ticketdb WHERE user_id = ?";
 
@@ -55,11 +54,10 @@ public class TicketDAO extends DataAccessObject<Ticket> {
 		return ticket;
 	}
 
-	@Override
-	public Set<Ticket> findAll() {
+	public Set<Ticket> findAllPending() {
 		// TODO Auto-generated method stub
 		Set<Ticket> ticketList  = new HashSet<Ticket>();
-		try(PreparedStatement statement = this.connection.prepareStatement(FINDALL);){
+		try(PreparedStatement statement = this.connection.prepareStatement(FINDALLPENDING);){
             ResultSet resultSet = statement.executeQuery();
             while(resultSet.next()) {
             	ticketList.add(new Ticket(resultSet.getInt(1), resultSet.getInt(2), resultSet.getDouble(3),
@@ -139,6 +137,12 @@ public class TicketDAO extends DataAccessObject<Ticket> {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public Set<Ticket> findAll() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

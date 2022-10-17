@@ -4,7 +4,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Set;
+
+import com.revature.model.Ticket;
 
 public abstract class DataAccessObject <T extends DataTransferObject> {
 

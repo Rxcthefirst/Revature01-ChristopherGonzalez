@@ -6,8 +6,6 @@ public class Ticket implements DataTransferObject {
 
 	private long ticketID;
 	private long userID;
-	private String userFirstName;
-	private String userLastName;
 	private Double amount;
 	private String description;
 	private String status;
@@ -68,7 +66,7 @@ public class Ticket implements DataTransferObject {
 
 	@Override
 	public String toString() {
-		return "Ticket [ticketID=" + ticketID + ", userID=" + userID + ", amount=" + amount + ", description=" + description + ", status="
+		return "Ticket [ticketID=" + ticketID + ", userID=" + userID + ", amount=" + amount + ", description=" + description + ", ticket_status="
 				+ status + "]";
 	}
 
