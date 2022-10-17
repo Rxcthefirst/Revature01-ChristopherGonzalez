@@ -11,8 +11,8 @@ import com.revature.util.DataAccessObject;
 
 public class TicketDAO extends DataAccessObject<Ticket> {
 	
-	private static final String INSERT = "INSERT INTO ticketdb (ticket_id, user_id, first_name,"
-			+ "last_name, username, password, is_manager) VALUES (DEFAULT, ?, ?, ?, ?, DEFAULT)";
+	private static final String INSERT = "INSERT INTO ticketdb (ticket_id, user_id, amount,"
+			+ "description, ticket_status) VALUES (DEFAULT, ?, ?, ?, DEFAULT)";
 	
 	private static final String GET_ONE = "SELECT ticket_id, user_id, amount, description, " + 
 			"ticket_status FROM ticketdb WHERE ticket_id = ?";
@@ -81,9 +81,9 @@ public class TicketDAO extends DataAccessObject<Ticket> {
 			statement.setLong(1, dto.getUserID());
 			statement.setDouble(2, dto.getAmount());
             statement.setString(3, dto.getDescription());
-            statement.setString(4, dto.getStatus());
             statement.execute();
             int id = this.getLastVal(TICKET_SEQUENCE);
+            System.out.println(id);
             return this.findById(id);
 		}catch(SQLException e) {
 			e.printStackTrace();

@@ -16,6 +16,7 @@ VALUES
 ('Oliver', 'Robinson', 'Havok22', 'fatbottom', DEFAULT),
 ('Christopher', 'Seymour', 'Hamjam', 'howdyneighbor', DEFAULT),
 ('Jet', 'Violetta', 'JettYoubetcha', 'youbet', DEFAULT),
+('Adam', 'Clark', 'Rick', 'Moranis', DEFAULT),
 ('Genji', 'Genji', 'Genji', 'GENJI', DEFAULT),
 ('Christopher', 'Gonzalez', 'Rxcthefirst', 'PASSWORD', DEFAULT),
 ('Blake', 'Maurer', 'Droop', 'BrettSucks', DEFAULT),

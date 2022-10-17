@@ -3,7 +3,7 @@ package com.revature.model;
 import com.revature.util.DataTransferObject;
 
 public class Ticket implements DataTransferObject {
-	
+
 	private long ticketID;
 	private long userID;
 	private String userFirstName;
@@ -11,19 +11,16 @@ public class Ticket implements DataTransferObject {
 	private Double amount;
 	private String description;
 	private String status;
-	
+
 	public Ticket() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Ticket(long ticketID, long userID, String userFirstName, String userLastName, Double amount, String description,
-			String status) {
+	public Ticket(long ticketID, long userID, Double amount, String description, String status) {
 		super();
 		this.ticketID = ticketID;
 		this.userID = userID;
-		this.userFirstName = userFirstName;
-		this.userLastName = userLastName;
 		this.amount = amount;
 		this.description = description;
 		this.status = status;
@@ -45,22 +42,6 @@ public class Ticket implements DataTransferObject {
 		this.userID = userID;
 	}
 
-	public String getUserFirstName() {
-		return userFirstName;
-	}
-
-	public void setUserFirstName(String userFirstName) {
-		this.userFirstName = userFirstName;
-	}
-
-	public String getUserLastName() {
-		return userLastName;
-	}
-
-	public void setUserLastName(String userLastName) {
-		this.userLastName = userLastName;
-	}
-	
 	public Double getAmount() {
 		return amount;
 	}
@@ -87,8 +68,8 @@ public class Ticket implements DataTransferObject {
 
 	@Override
 	public String toString() {
-		return "Ticket [ticketID=" + ticketID + ", userID=" + userID + ", userFirstName=" + userFirstName
-				+ ", userLastName=" + userLastName + ", amount=" + amount + ", description=" + description + ", status=" + status + "]";
+		return "Ticket [ticketID=" + ticketID + ", userID=" + userID + ", amount=" + amount + ", description=" + description + ", status="
+				+ status + "]";
 	}
 
 	@Override
@@ -96,8 +77,5 @@ public class Ticket implements DataTransferObject {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
-	
-	
 
 }

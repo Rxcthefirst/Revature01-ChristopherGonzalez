@@ -109,7 +109,7 @@ public class UserDAO extends DataAccessObject<User>{
             statement.setString(3, dto.getUsername());
             statement.setString(4, dto.getPassword());
             statement.setLong(5, dto.getId());
-            statement.execute();
+            statement.executeUpdate();
             user = this.findById(dto.getId());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -127,13 +127,12 @@ public class UserDAO extends DataAccessObject<User>{
 			statement.setString(2, dto.getLastName());
             statement.setString(3, dto.getUsername());
             statement.setString(4, dto.getPassword());
-            statement.execute();
+            statement.executeUpdate();
             int id = this.getLastVal(USER_SEQUENCE);
             return this.findById(id);
 		}catch(SQLException e) {
 			e.printStackTrace();
-			System.out.println("Registration Unsuccessful: This username has already been taken");
-			throw new RuntimeException(e);
+			return null;
 		}
 	}
 
@@ -142,7 +141,7 @@ public class UserDAO extends DataAccessObject<User>{
 		// TODO Auto-generated method stub
 		try(PreparedStatement statement = this.connection.prepareStatement(DELETE);){
 			statement.setLong(1, id);
-			statement.execute();
+			statement.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
