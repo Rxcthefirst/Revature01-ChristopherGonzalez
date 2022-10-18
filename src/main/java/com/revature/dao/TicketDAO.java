@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
 import com.revature.model.Ticket;
@@ -18,8 +20,7 @@ public class TicketDAO extends DataAccessObject<Ticket> {
 	private static final String GET_ONE = "SELECT ticket_id, user_id, amount, description, " + 
 			"ticket_status FROM ticketdb WHERE ticket_id = ?";
 	
-	private static final String UPDATE = "UPDATE ticketdb SET amount = ?, description = ?, " +
-			"ticket_status = ? WHERE ticket_id = ?";
+	private static final String UPDATE = "UPDATE ticketdb SET ticket_status = ? WHERE ticket_id = ?";
 	
 	private static final String DELETE = "DELETE FROM ticketdb WHERE ticket_id = ?";
 	
@@ -54,9 +55,9 @@ public class TicketDAO extends DataAccessObject<Ticket> {
 		return ticket;
 	}
 
-	public Set<Ticket> findAllPending() {
+	public Queue<Ticket> findAllPending() {
 		// TODO Auto-generated method stub
-		Set<Ticket> ticketList  = new HashSet<Ticket>();
+		Queue<Ticket> ticketList  = new LinkedList<Ticket>();
 		try(PreparedStatement statement = this.connection.prepareStatement(FINDALLPENDING);){
             ResultSet resultSet = statement.executeQuery();
             while(resultSet.next()) {
@@ -92,16 +93,14 @@ public class TicketDAO extends DataAccessObject<Ticket> {
 	}
 
 	@Override
-	public Ticket update(Ticket dto) {
+	public Ticket update(Ticket dto, String result) {
 		// TODO Auto-generated method stub
 		Ticket ticket = new Ticket();
 		try(PreparedStatement statement = this.connection.prepareStatement(UPDATE);){
-			statement.setDouble(1, dto.getAmount());
-			statement.setString(2, dto.getDescription());
-            statement.setString(3, dto.getStatus());
-            statement.setLong(4, dto.getId());
+			statement.setString(1, dto.getStatus());
+            statement.setLong(2, dto.getTicketID());
             statement.execute();
-            ticket = this.findById(dto.getId());
+            ticket = this.findById(dto.getTicketID());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -141,6 +140,12 @@ public class TicketDAO extends DataAccessObject<Ticket> {
 
 	@Override
 	public Set<Ticket> findAll() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Ticket update(Ticket dto) {
 		// TODO Auto-generated method stub
 		return null;
 	}

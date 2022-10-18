@@ -148,6 +148,12 @@ public class UserDAO extends DataAccessObject<User>{
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public User update(User dto, String result) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
 	
