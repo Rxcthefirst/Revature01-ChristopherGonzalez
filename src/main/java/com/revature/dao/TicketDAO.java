@@ -97,7 +97,7 @@ public class TicketDAO extends DataAccessObject<Ticket> {
 		// TODO Auto-generated method stub
 		Ticket ticket = new Ticket();
 		try(PreparedStatement statement = this.connection.prepareStatement(UPDATE);){
-			statement.setString(1, dto.getStatus());
+			statement.setString(1, dto.getStatus().toUpperCase());
             statement.setLong(2, dto.getTicketID());
             statement.execute();
             ticket = this.findById(dto.getTicketID());

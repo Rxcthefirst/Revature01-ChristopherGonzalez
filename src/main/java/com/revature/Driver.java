@@ -14,6 +14,7 @@ import com.revature.model.User;
 import com.revature.util.ConnectionFactory;
 
 import io.javalin.Javalin;
+import jakarta.servlet.http.Cookie;
 
 public class Driver {
 
@@ -52,13 +53,16 @@ public class Driver {
 							currentUser.setUsername(user.getUsername());
 							currentUser.setPassword(user.getPassword());
 							currentUser.setManager(user.isManager());
+							Cookie cookie = new Cookie("authenticated", "true");
 							if (employeeDAO.findById(user.getId()).isManager()) {
 								System.out.println("Manager Access Granted");
 								ctx.result("Manager Access Granted");
+								ctx.res().addCookie(cookie);
 
 							} else {
 								System.out.println("User Access Granted");
 								ctx.result("User Access Granted");
+								ctx.res().addCookie(cookie);
 
 							}
 						}
@@ -117,19 +121,35 @@ public class Driver {
 
 		app.get("/view-tickets", ctx -> {
 
-			System.out.println(currentUser.getFirstName());
+			Cookie[] cookies = ctx.req().getCookies();
 
-			try (Connection conn = ConnectionFactory.getConnection();) {
-				TicketDAO ticketDAO = new TicketDAO(conn);
-				Set<Ticket> tickets = ticketDAO.findAllByUserId(currentUser.getId());
+			if (cookies != null) {
 
-				ctx.result(tickets.toString());
+				for (Cookie cookie : cookies) {
+					if (cookie.getName().equals("authenticated") && cookie.getValue().equals("true")) {
 
-			} catch (SQLException e) {
-				e.printStackTrace();
+						try (Connection conn = ConnectionFactory.getConnection();) {
+							TicketDAO ticketDAO = new TicketDAO(conn);
+							Set<Ticket> tickets = ticketDAO.findAllByUserId(currentUser.getId());
+
+							ctx.result(tickets.toString());
+
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+
+						ctx.status(HttpStatus.ACCEPTED_202);
+					} else {
+						ctx.result("User not authenticated. Please log in.");
+						ctx.status(HttpStatus.UNAUTHORIZED_401);
+					}
+
+				}
+			} else {
+				ctx.result("User not authenticated. Please log in.");
+				ctx.status(HttpStatus.UNAUTHORIZED_401);
 			}
 
-			ctx.status(HttpStatus.ACCEPTED_202);
 		});
 
 		// Ticket Submission
@@ -156,97 +176,159 @@ public class Driver {
 
 		app.get("/logout", ctx -> {
 
-			if (currentUser.getUsername() == null) {
+			Cookie[] cookies = ctx.req().getCookies();
 
-				ctx.result("You are not currently logged in.");
-				ctx.status(HttpStatus.BAD_REQUEST_400);
+			if (cookies != null) {
+				boolean match = false;
 
-			} else {
-				try (Connection conn = ConnectionFactory.getConnection();) {
-					//UserDAO userDAO = new UserDAO(conn);
-					currentUser.setId(0);
-					currentUser.setFirstName(null);
-					currentUser.setLastName(null);
-					currentUser.setUsername(null);
-					currentUser.setPassword(null);
-					currentUser.setManager(false);
+				for (Cookie cookie : cookies) {
+					if (cookie.getName().equals("authenticated") && cookie.getValue().equals("true")) {
+						match = true;
+						cookie.setValue("false");
+						ctx.res().addCookie(cookie);
+						ctx.result("Logout Successful");
 
-					ctx.result("Logout successful: Current user is " + currentUser);
-					ctx.status(HttpStatus.ACCEPTED_202);
-				} catch (SQLException e) {
-					e.printStackTrace();
+						if (currentUser.getUsername() != null) {
+							currentUser.setId(0);
+							currentUser.setFirstName(null);
+							currentUser.setLastName(null);
+							currentUser.setUsername(null);
+							currentUser.setPassword(null);
+							currentUser.setManager(false);
+						}
+					}
+					
+					if (!match) {
+						ctx.result("User not previously authenticated. Are you sure that you have already logged in?");
+						ctx.status(HttpStatus.BAD_REQUEST_400);
+					}
+
 				}
+			} else {
+				ctx.result("User not previously authenticated. Are you sure that you have already logged in?");
+				ctx.status(HttpStatus.BAD_REQUEST_400);
 			}
+
 		});
 
 		// Ticket Viewer
 
 		app.get("/view-pending-tickets", ctx -> {
+			
+			Cookie[] cookies = ctx.req().getCookies();
 
-			if (currentUser.isManager()) {
+			if (cookies != null) {
+				boolean match = false;
 
-				System.out.println(currentUser.getFirstName());
-
-				try (Connection conn = ConnectionFactory.getConnection();) {
-					TicketDAO ticketDAO = new TicketDAO(conn);
-					Queue<Ticket> tickets = ticketDAO.findAllPending();
-					for (Ticket ticket : tickets) {
-						System.out.println(ticket);
+				for (Cookie cookie : cookies) {
+					if (cookie.getName().equals("authenticated") && cookie.getValue().equals("true")) {
+						match = true;
 					}
+					
+					if (match) {
+						
+						if (currentUser.isManager()) {
 
-					ctx.result(tickets.toString());
-				} catch (SQLException e) {
-					e.printStackTrace();
+
+							try (Connection conn = ConnectionFactory.getConnection();) {
+								TicketDAO ticketDAO = new TicketDAO(conn);
+								Queue<Ticket> tickets = ticketDAO.findAllPending();
+								for (Ticket ticket : tickets) {
+									System.out.println(ticket);
+								}
+
+								ctx.result(tickets.toString());
+							} catch (SQLException e) {
+								e.printStackTrace();
+							}
+
+							ctx.status(HttpStatus.ACCEPTED_202);
+						} else {
+							ctx.status(HttpStatus.FORBIDDEN_403);
+							ctx.result("You do not have authorization to perform this operation");
+						}
+						
+					} else {
+						ctx.result("User not previously authenticated. Are you sure that you have already logged in?");
+						ctx.status(HttpStatus.BAD_REQUEST_400);
+					}
 				}
-
-				ctx.status(HttpStatus.ACCEPTED_202);
 			} else {
-				ctx.status(HttpStatus.FORBIDDEN_403);
-				ctx.result("You do not have authorization to perform this operation");
+				ctx.result("User not previously authenticated. Are you sure that you have already logged in?");
+				ctx.status(HttpStatus.BAD_REQUEST_400);
 			}
+
+			
 		});
 
 		app.put("/result-ticket", ctx -> {
+			
+			
+			Cookie[] cookies = ctx.req().getCookies();
 
-			Ticket resultedTicket = ctx.bodyAsClass(Ticket.class);
+			if (cookies != null) {
+				boolean match = false;
 
-				if (currentUser.isManager()) {
-					if (resultedTicket.getStatus().toLowerCase().equals("Denied".toLowerCase())
-							|| resultedTicket.getStatus().toLowerCase().equals("Approved".toLowerCase())) {
-						System.out.println("Validation Test");
-
-					try (Connection conn = ConnectionFactory.getConnection();) {
-						TicketDAO ticketDAO = new TicketDAO(conn);
-						Ticket actualTicket = ticketDAO.findById(resultedTicket.getTicketID());
-						System.out.println("Actual Ticket: " + actualTicket);
-						System.out.println("resultedTicket: " + resultedTicket);
-						
-						actualTicket.setStatus(resultedTicket.getStatus());
-						System.out.println("Actual Ticket after setting status: " + actualTicket);
-
-						resultedTicket = ticketDAO.update(actualTicket, resultedTicket.getStatus());
-						Ticket testTicket = ticketDAO.findById(resultedTicket.getTicketID());
-						
-						System.out.println(testTicket);
-						
-						System.out.println(actualTicket);
-						System.out.println(resultedTicket);
-
-						ctx.result("Ticket updated Succesfully" + resultedTicket.toString());
-					} catch (SQLException e) {
-						e.printStackTrace();
+				for (Cookie cookie : cookies) {
+					if (cookie.getName().equals("authenticated") && cookie.getValue().equals("true")) {
+						match = true;
 					}
+					
+					if (match) {
+						
+						Ticket resultedTicket = ctx.bodyAsClass(Ticket.class);
 
-					ctx.status(HttpStatus.ACCEPTED_202);
-				} else {
-				System.out.println("Invalid Result Type");
-				ctx.result("Invalid Result Type");
+						if (currentUser.isManager()) {
+							if (resultedTicket.getStatus().toLowerCase().equals("Denied".toLowerCase())
+									|| resultedTicket.getStatus().toLowerCase().equals("Approved".toLowerCase())) {
+								System.out.println("Validation Test");
+
+								try (Connection conn = ConnectionFactory.getConnection();) {
+									TicketDAO ticketDAO = new TicketDAO(conn);
+									Ticket actualTicket = ticketDAO.findById(resultedTicket.getTicketID());
+									System.out.println("Actual Ticket: " + actualTicket);
+									System.out.println("resultedTicket: " + resultedTicket);
+
+									actualTicket.setStatus(resultedTicket.getStatus());
+									System.out.println("Actual Ticket after setting status: " + actualTicket);
+
+									resultedTicket = ticketDAO.update(actualTicket, resultedTicket.getStatus());
+									Ticket testTicket = ticketDAO.findById(resultedTicket.getTicketID());
+
+									System.out.println(testTicket);
+
+									System.out.println(actualTicket);
+									System.out.println(resultedTicket);
+
+									ctx.result("Ticket updated Succesfully" + resultedTicket.toString());
+								} catch (SQLException e) {
+									e.printStackTrace();
+								}
+
+								ctx.status(HttpStatus.ACCEPTED_202);
+							} else {
+								System.out.println("Invalid Result Type");
+								ctx.result("Invalid Result Type");
+							}
+						} else {
+							ctx.status(HttpStatus.FORBIDDEN_403);
+							ctx.result("You do not have authorization to perform this operation");
+
+						}
+						
+					} else {
+						ctx.result("User not previously authenticated. Are you sure that you have already logged in?");
+						ctx.status(HttpStatus.BAD_REQUEST_400);
+					}
+				}
+			} else {
+				ctx.result("User not previously authenticated. Are you sure that you have already logged in?");
+				ctx.status(HttpStatus.BAD_REQUEST_400);
 			}
-		} else {
-			ctx.status(HttpStatus.FORBIDDEN_403);
-			ctx.result("You do not have authorization to perform this operation");
 
-		}});
+		});
+
+
 
 		app.after(ctx -> {
 			System.out.println("HTTP REQUEST COMPLETE");
