@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS userdb (
 INSERT INTO userdb (first_name, last_name, username, user_password, is_manager) 
 VALUES
 (DEFAULT, DEFAULT, 'root', 'root', TRUE),
-('Oliver', 'Robinson', 'Havok22', 'fatbottom', DEFAULT),
+('Oliver', 'Robinson', 'Havok22', 'Oxenfree', DEFAULT),
 ('Christopher', 'Seymour', 'Hamjam', 'howdyneighbor', DEFAULT),
 ('Jet', 'Violetta', 'JettYoubetcha', 'youbet', DEFAULT),
 ('Adam', 'Clark', 'Rick', 'Moranis', DEFAULT),

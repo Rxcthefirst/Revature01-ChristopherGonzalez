@@ -156,20 +156,43 @@ public class Driver {
 
 		app.post("/submit", ctx -> {
 
-			Ticket tempTicket = ctx.bodyAsClass(Ticket.class);
-			tempTicket.setUserID(currentUser.getId());
+			Cookie[] cookies = ctx.req().getCookies();
 
-			try (Connection conn = ConnectionFactory.getConnection();) {
-				TicketDAO ticketDAO = new TicketDAO(conn);
-				Ticket ticket = ticketDAO.create(tempTicket);
-				System.out.println("Ticket: " + ticket.getTicketID() + " created succesfully.");
-				ctx.result("Ticket: " + ticket.getTicketID() + " created successfully.");
-			} catch (SQLException e) {
-				e.printStackTrace();
-				ctx.result("Ticket submission not successful.");
+			if (cookies != null) {
+				boolean match = false;
+
+				for (Cookie cookie : cookies) {
+					if (cookie.getName().equals("authenticated") && cookie.getValue().equals("true")) {
+						match = true;
+
+						Ticket tempTicket = ctx.bodyAsClass(Ticket.class);
+						tempTicket.setUserID(currentUser.getId());
+
+						try (Connection conn = ConnectionFactory.getConnection();) {
+							TicketDAO ticketDAO = new TicketDAO(conn);
+							Ticket ticket = ticketDAO.create(tempTicket);
+							System.out.println("Ticket: " + ticket.getTicketID() + " created succesfully.");
+							ctx.result("Ticket: " + ticket.getTicketID() + " created successfully.");
+						} catch (SQLException e) {
+							e.printStackTrace();
+							ctx.result("Ticket submission not successful.");
+						}
+
+						ctx.status(HttpStatus.CREATED_201);
+
+					}
+
+					if (!match) {
+						ctx.result("User not previously authenticated. Please log in.");
+						ctx.status(HttpStatus.BAD_REQUEST_400);
+					}
+
+				}
+			} else {
+				ctx.result("User not previously authenticated. Please log in.");
+				ctx.status(HttpStatus.BAD_REQUEST_400);
 			}
 
-			ctx.status(HttpStatus.CREATED_201);
 		});
 
 		// Logout
@@ -197,15 +220,15 @@ public class Driver {
 							currentUser.setManager(false);
 						}
 					}
-					
+
 					if (!match) {
-						ctx.result("User not previously authenticated. Are you sure that you have already logged in?");
+						ctx.result("User not previously authenticated. Please log in.");
 						ctx.status(HttpStatus.BAD_REQUEST_400);
 					}
 
 				}
 			} else {
-				ctx.result("User not previously authenticated. Are you sure that you have already logged in?");
+				ctx.result("User not previously authenticated. Please log in.");
 				ctx.status(HttpStatus.BAD_REQUEST_400);
 			}
 
@@ -214,7 +237,7 @@ public class Driver {
 		// Ticket Viewer
 
 		app.get("/view-pending-tickets", ctx -> {
-			
+
 			Cookie[] cookies = ctx.req().getCookies();
 
 			if (cookies != null) {
@@ -224,11 +247,10 @@ public class Driver {
 					if (cookie.getName().equals("authenticated") && cookie.getValue().equals("true")) {
 						match = true;
 					}
-					
-					if (match) {
-						
-						if (currentUser.isManager()) {
 
+					if (match) {
+
+						if (currentUser.isManager()) {
 
 							try (Connection conn = ConnectionFactory.getConnection();) {
 								TicketDAO ticketDAO = new TicketDAO(conn);
@@ -247,23 +269,21 @@ public class Driver {
 							ctx.status(HttpStatus.FORBIDDEN_403);
 							ctx.result("You do not have authorization to perform this operation");
 						}
-						
+
 					} else {
-						ctx.result("User not previously authenticated. Are you sure that you have already logged in?");
+						ctx.result("User not previously authenticated. Please log in.");
 						ctx.status(HttpStatus.BAD_REQUEST_400);
 					}
 				}
 			} else {
-				ctx.result("User not previously authenticated. Are you sure that you have already logged in?");
+				ctx.result("User not previously authenticated. Please log in.");
 				ctx.status(HttpStatus.BAD_REQUEST_400);
 			}
 
-			
 		});
 
 		app.put("/result-ticket", ctx -> {
-			
-			
+
 			Cookie[] cookies = ctx.req().getCookies();
 
 			if (cookies != null) {
@@ -273,34 +293,37 @@ public class Driver {
 					if (cookie.getName().equals("authenticated") && cookie.getValue().equals("true")) {
 						match = true;
 					}
-					
+
 					if (match) {
-						
+
 						Ticket resultedTicket = ctx.bodyAsClass(Ticket.class);
 
 						if (currentUser.isManager()) {
 							if (resultedTicket.getStatus().toLowerCase().equals("Denied".toLowerCase())
 									|| resultedTicket.getStatus().toLowerCase().equals("Approved".toLowerCase())) {
-								System.out.println("Validation Test");
+								
+								
 
 								try (Connection conn = ConnectionFactory.getConnection();) {
 									TicketDAO ticketDAO = new TicketDAO(conn);
 									Ticket actualTicket = ticketDAO.findById(resultedTicket.getTicketID());
-									System.out.println("Actual Ticket: " + actualTicket);
-									System.out.println("resultedTicket: " + resultedTicket);
+									System.out.println(resultedTicket.getStatus());
+									
+									if (actualTicket.getStatus().toLowerCase().equals("Pending".toLowerCase())) {
+										actualTicket.setStatus(resultedTicket.getStatus());
+										resultedTicket = ticketDAO.update(actualTicket, resultedTicket.getStatus());
+										Ticket testTicket = ticketDAO.findById(resultedTicket.getTicketID());
 
-									actualTicket.setStatus(resultedTicket.getStatus());
-									System.out.println("Actual Ticket after setting status: " + actualTicket);
 
-									resultedTicket = ticketDAO.update(actualTicket, resultedTicket.getStatus());
-									Ticket testTicket = ticketDAO.findById(resultedTicket.getTicketID());
-
-									System.out.println(testTicket);
-
-									System.out.println(actualTicket);
-									System.out.println(resultedTicket);
-
-									ctx.result("Ticket updated Succesfully" + resultedTicket.toString());
+										ctx.result("Ticket updated Succesfully" + resultedTicket.toString());
+										ctx.status(HttpStatus.CREATED_201);
+									} else {
+										
+										ctx.result("That ticket has already been resulted");
+										ctx.status(HttpStatus.BAD_REQUEST_400);
+										
+									}
+									
 								} catch (SQLException e) {
 									e.printStackTrace();
 								}
@@ -315,20 +338,18 @@ public class Driver {
 							ctx.result("You do not have authorization to perform this operation");
 
 						}
-						
+
 					} else {
-						ctx.result("User not previously authenticated. Are you sure that you have already logged in?");
+						ctx.result("User not previously authenticated. Please log in.");
 						ctx.status(HttpStatus.BAD_REQUEST_400);
 					}
 				}
 			} else {
-				ctx.result("User not previously authenticated. Are you sure that you have already logged in?");
+				ctx.result("User not previously authenticated. Please log in.");
 				ctx.status(HttpStatus.BAD_REQUEST_400);
 			}
 
 		});
-
-
 
 		app.after(ctx -> {
 			System.out.println("HTTP REQUEST COMPLETE");
